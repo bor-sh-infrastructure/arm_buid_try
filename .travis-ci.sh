@@ -71,4 +71,4 @@ cd google-breakpad-read-only
 ./configure
 make -j4
 make check
-
+cat ./test-suite.log
