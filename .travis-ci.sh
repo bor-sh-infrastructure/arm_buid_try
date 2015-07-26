@@ -11,10 +11,7 @@ CHROOT_ARCH=armhf
 HOST_DEPENDENCIES="debootstrap qemu-user-static binfmt-support sbuild"
 
 # Debian package dependencies for the chrooted environment
-GUEST_DEPENDENCIES="build-essential git m4 sudo python"
-
-# Command used to run the tests
-TEST_COMMAND="make test"
+GUEST_DEPENDENCIES="build-essential git m4 sudo python subversion"
 
 function setup_arm_chroot {
     # Host dependencies
@@ -49,9 +46,7 @@ function setup_arm_chroot {
     sudo touch ${CHROOT_DIR}/.chroot_is_done
 
     # Call ourselves again which will cause tests to run
-    sudo chroot ${CHROOT_DIR} bash -c "uname -ar && cd ${TRAVIS_BUILD_DIR} && pwd && ls -la && bash -ex .travis-ci.sh"
-#    sudo chroot ${CHROOT_DIR} bash -c "ls -la"
-#    sudo chroot ${CHROOT_DIR} bash -c "./.travis-ci.sh"
+    sudo chroot ${CHROOT_DIR} bash -c "cd ${TRAVIS_BUILD_DIR} && pwd && ls -la && bash -ex .travis-ci.sh"
 }
 
 if [ -e "/.chroot_is_done" ]; then
@@ -70,5 +65,12 @@ fi
 echo "Running tests"
 echo "Environment: $(uname -a)"
 
-${TEST_COMMAND}
+svn checkout http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad-read-only
+cd google-breakpad-read-only
+
+[ "${ARCH}" = "arm" ] && { CONFARGS="--host=arm-linux-gnueabihf"; }
+
+./configure $CONFARGS
+make
+make check
 
