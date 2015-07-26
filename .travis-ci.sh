@@ -68,9 +68,7 @@ echo "Environment: $(uname -a)"
 svn checkout http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad-read-only
 cd google-breakpad-read-only
 
-[ "${ARCH}" = "arm" ] && { CONFARGS="--host=arm-linux-gnueabihf"; }
-
-./configure $CONFARGS
-make
+./configure
+make -j4
 make check
 
