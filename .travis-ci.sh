@@ -8,16 +8,18 @@ VERSION=wheezy
 CHROOT_ARCH=armhf
 
 # Debian package dependencies for the host
-HOST_DEPENDENCIES="debootstrap qemu-user-static binfmt-support sbuild"
+HOST_DEPENDENCIES="debootstrap qemu-user-static binfmt-support sbuild g++-arm-linux-gnueabihf"
 
 # Debian package dependencies for the chrooted environment
 GUEST_DEPENDENCIES="build-essential git m4 sudo python subversion"
 
-function setup_arm_chroot {
+function setup_host_deps {
     # Host dependencies
     sudo apt-get update
     sudo apt-get install -qq -y ${HOST_DEPENDENCIES}
+}
 
+function setup_arm_chroot {
     # Create chrooted environment
     sudo mkdir ${CHROOT_DIR}
     sudo debootstrap --foreign --no-check-gpg --include=fakeroot,build-essential \
@@ -55,6 +57,14 @@ if [ -e "/.chroot_is_done" ]; then
 
   . ./envvars.sh
 else
+  setup_host_deps
+    
+  svn checkout http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad-read-only
+  cd google-breakpad-read-only
+
+  ./configure --host=arm-linux-gnueabihf
+  make -j4
+
   if [ "${ARCH}" = "arm" ]; then
     # ARM test run, need to set up chrooted environment first
     echo "Setting up chrooted ARM environment"
@@ -65,10 +75,5 @@ fi
 echo "Running tests"
 echo "Environment: $(uname -a)"
 
-svn checkout http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad-read-only
-cd google-breakpad-read-only
-
-./configure
-make -j4
 make check
 cat ./test-suite.log
