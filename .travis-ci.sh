@@ -31,8 +31,8 @@ function setup_arm_chroot {
 
     # Create file with environment variables which will be used inside chrooted
     # environment
-    echo "export ARCH=${ARCH}" > envvars.sh
-    echo "export TRAVIS_BUILD_DIR=${TRAVIS_BUILD_DIR}" >> envvars.sh
+    echo "export ARCH=${ARCH}" > ${TRAVIS_BUILD_DIR}/envvars.sh
+    echo "export TRAVIS_BUILD_DIR=${TRAVIS_BUILD_DIR}" >> ${TRAVIS_BUILD_DIR}/envvars.sh
     chmod a+x envvars.sh
 
     # Install dependencies inside chroot
@@ -54,7 +54,6 @@ function setup_arm_chroot {
 if [ -e "/.chroot_is_done" ]; then
   # We are inside ARM chroot
   echo "Running inside chrooted environment"
-
   . ./envvars.sh
 else
   setup_host_deps
@@ -75,5 +74,6 @@ fi
 echo "Running tests"
 echo "Environment: $(uname -a)"
 
+cd google-breakpad-read-only
 make check
 cat ./test-suite.log
