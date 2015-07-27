@@ -15,8 +15,8 @@ GUEST_DEPENDENCIES="build-essential git m4 sudo python subversion"
 
 function setup_host_deps {
     # Host dependencies
-    sudo apt-get update
-    sudo apt-get install -qq -y ${HOST_DEPENDENCIES}
+    sudo apt-get update &> /dev/null
+    sudo apt-get install -qq -y ${HOST_DEPENDENCIES} &> /dev/null
 }
 
 function setup_arm_chroot {
@@ -33,7 +33,7 @@ function setup_arm_chroot {
     # environment
     echo "export ARCH=${ARCH}" > ${TRAVIS_BUILD_DIR}/envvars.sh
     echo "export TRAVIS_BUILD_DIR=${TRAVIS_BUILD_DIR}" >> ${TRAVIS_BUILD_DIR}/envvars.sh
-    chmod a+x envvars.sh
+    chmod a+x ${TRAVIS_BUILD_DIR}/envvars.sh
 
     # Install dependencies inside chroot
     sudo chroot ${CHROOT_DIR} apt-get update
@@ -42,7 +42,7 @@ function setup_arm_chroot {
 
     # Create build dir and copy travis build files to our chroot environment
     sudo mkdir -p ${CHROOT_DIR}/${TRAVIS_BUILD_DIR}
-    sudo rsync -av ${TRAVIS_BUILD_DIR}/ ${CHROOT_DIR}/${TRAVIS_BUILD_DIR}/
+    sudo rsync -av ${TRAVIS_BUILD_DIR}/ ${CHROOT_DIR}/${TRAVIS_BUILD_DIR}/ &> /dev/null
 
     # Indicate chroot environment has been set up
     sudo touch ${CHROOT_DIR}/.chroot_is_done
@@ -58,7 +58,7 @@ if [ -e "/.chroot_is_done" ]; then
 else
   setup_host_deps
     
-  svn checkout http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad-read-only
+  svn checkout http://google-breakpad.googlecode.com/svn/trunk/ google-breakpad-read-only &> /dev/null
   cd google-breakpad-read-only
 
   ./configure --host=arm-linux-gnueabihf
@@ -76,4 +76,3 @@ echo "Environment: $(uname -a)"
 
 cd google-breakpad-read-only
 make check
-cat ./test-suite.log
