@@ -10,8 +10,8 @@ wget --no-check-certificate https://googledrive.com/host/0B0AeTm15hbhXUksyQXlKaE
 sudo tar xjf arm-chroot.tar.bz -C /
 sudo chroot ${CHROOT_DIR} bash -c "uname -a"
 sudo chroot ${CHROOT_DIR} bash -c "g++ --version"
-sudo chroot ${CHROOT_DIR} apt-get update
-sudo chroot ${CHROOT_DIR} apt-get --allow-unauthenticated install \
-    -qq -y ${GUEST_DEPENDENCIES}
-sudo chroot ${CHROOT_DIR} bash -c "cd /home/user/arm_buid_try/google-breakpad-read-only && svn up"
-sudo chroot ${CHROOT_DIR} bash -c "cd /home/user/arm_buid_try/google-breakpad-read-only && ./configure && { make -j4 check; RET=$?; } && cat ./test-suite.log && exit $RET"
+#sudo chroot ${CHROOT_DIR} apt-get update
+#sudo chroot ${CHROOT_DIR} apt-get --allow-unauthenticated install \
+#    -qq -y ${GUEST_DEPENDENCIES}
+#sudo chroot ${CHROOT_DIR} bash -c "cd /home/user/arm_buid_try/google-breakpad-read-only && svn up"
+sudo chroot ${CHROOT_DIR} bash -c "cd /home/user/arm_buid_try/google-breakpad-read-only && ./configure && { make -j4 check; export RET=$?; } && cat ./test-suite.log && { echo "Exit with $RET"; exit $RET; }"
